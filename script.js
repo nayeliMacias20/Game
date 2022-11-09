@@ -19,14 +19,17 @@ class Gato{
 }
 const gato = new Gato();
 */
+
+//Creamos el evento en el cual estará todo.
 window.addEventListener('load', function(){
     const canvas = document.getElementById('canvas1');
     const ctx = canvas.getContext("2d")
+    //Asignamos las medidas de ancho y altura
     canvas.width = 500;
     canvas.height = 500;
 
 
-    //Clase InputHandler
+    //Clase InputHandler para manipular cuando oprimimos las teclas
     class InputHandler{
         //Lo pasamos game como una propiedad, manejará el input, con el teclado manejaremos el mov.
         constructor(game){
@@ -68,20 +71,19 @@ window.addEventListener('load', function(){
         constructor(game, x, y ){
             //Pasamos el objeto
             this.game = game;
+            //Mandamos a llamar la clase Game.
             this.x = x;
             this.y = y;
             //Pasamos el tamaño que lanzará los proyectiles
             this.width = 10;
             this.height = 3;
             //Se realizo cambio estaba en 3
-            this.speed= 5;
+            this.speed= 6;
             //Eliminamos el objeto cuando se salga del área
-            this.markedForDeletion = false
+            this.markedForDeletion = false;
             //Ponemos un sonido cuando se dispara
-            this.clickAudio = new Audio('./sounds/clic.wav');
-            
+            this.clickAudio = new Audio('./sounds/shot.wav');
         }
-
         update(){
             //Se vaya actualizando y vaya agarrando velocidad.
             this.x += this.speed;
@@ -89,9 +91,10 @@ window.addEventListener('load', function(){
                 this.markedForDeletion = true
             }
         }
+        //Pintamos los proyectiles.
         draw(context){
             //Los proyectiles tomarán el color amarillo
-            context.fillStyle = 'yellow';
+           context.fillStyle = 'red';
             this.clickAudio.play();
             context.fillRect(this.x,this.y,this.width,this.height);
         }
@@ -101,21 +104,24 @@ window.addEventListener('load', function(){
         //Le pasamos el objeto juego, que se va a convertir en una propiedad de player
         constructor(game){
             this.game = game;
+            //Declaramos las medidas
             this.width = 120;
             this.height = 190;
             this.x = 20;
             this.y = 100;
             this.frameX = 0;
-            this.frameY = 0;
-            this.speedY = 1;
+            this.frameY = 1;
+            this.speedY = 0;
             this.maxSpeed = 1; 
+            //Se crea un arreglo para los projectiles.
             this.projectiles = [];
+            //Imagen del jugador
             this.image =  document.getElementById('player');
             this.maxFrame = 37;
             
 
         }
-        //Actualizar
+        //Actualizar las teclas.
         update(){
             if(this.game.keys.includes('ArrowUp')){
                 //this.speedY = -1;
@@ -148,7 +154,7 @@ window.addEventListener('load', function(){
             //this.black = this.black?false:true
             //context.fillStyle = 'black'
             //context.fillRect(this.x,this.y, this.width,this.height);
-            context.drawImage(this.image,
+            context.drawImage(this.image,//Imagen que se le asigno
                               //Para crear la animación
                               //sx, sy, sw, sh -> source de cada uno
                               this.frameX* this.width,
@@ -162,6 +168,7 @@ window.addEventListener('load', function(){
             //this.black = this.black?false:true;
             //context.fillStyle = this.black?'black':'white';          
         }
+        //Funcion para los projectiles
         shootTop(){
             if(this.game.ammo >0){
                 this.projectiles.push(new Projectile(this.game, this.x+80, this.y+30));
@@ -173,16 +180,22 @@ window.addEventListener('load', function(){
     class Enemy{
         constructor(game){
             this.game = game;
+            //Variable x es igual a width
             this.x = this.game.width;
+            //Se crea la variable de velocidad para los enemigos.
             this.speedX = Math.random()*-1.5-0.5;
-            this.markedForDeletion = false;
-            this.lives = 5;
+            //Variable para eliminarlos
+            this.markedForDeletion = false;       
+            //Vidas de los enemigos
+            this.lives = 10;
+            //Score tomado de las vias
             this.score = this.lives;
             this.frameX = 0;
             this.frameY = 0;
             this.maxFrame = 37;
 
         }
+        //Se crea la función de update
         update(){
             this.x += this.speedX;
             if(this.x + this.width < 0){
@@ -241,7 +254,7 @@ window.addEventListener('load', function(){
         update(){
             //la imagen va a ir corriendo de fondo y cuando mida el ancho de la imagen se reseteará
             //Cuando llegue a 0
-            if(this.z <= -this.width)this.x = 0;
+            if(this.x <= -this.width)this.x = 0;
             //Y si no se va a estar aumentando.
             //Quitandole el else es para que no se vea la pausa
             this.x -=  this.game.speed * this.speedModifier;
@@ -270,20 +283,23 @@ window.addEventListener('load', function(){
             //this.layers = [this.layer1, this.layer2, this.layer3, this.layer4];
             this.layers = [this.layer1, this.layer2, this.layer3];  
         }
+        //Update de los layers
         update(){
             this.layers.forEach(layer=>layer.update());
         }
+        //Dibujamos de los layers
         draw(context){
             //para que se vaya actualizando
             this.layers.forEach(layer=>layer.draw(context));
         }
     }
+    //Clase UI
     class UI{
         constructor(game){
             this.game = game;
-            this.fontSize = 25;
-            this.fontFamily= 'Helvetica';
-            this.color = 'white'
+            this.fontSize = 15;
+            this.fontFamily= 'Arial, Helvetica, sans-serif';
+            this.color = 'yellow'
         }
 
         draw(context){
@@ -292,10 +308,10 @@ window.addEventListener('load', function(){
             context.fillStyle = this.color;
             //Sombras
             context.shadowOffsetX = 2;
-            context.shadowOffsety = 2;
+            context.shadowOffsety = 1;
             context.shadowColor = 'black';
             context.font = this.fontSize + 'px'+ this.fontFamily;
-            context.fillText('score: ' + this.game.score, 20, 40);
+            context.fillText('Score: ' + this.game.score, 20, 40);
             
             for(let i=0;i<this.game.ammo;i++){
                 context.fillRect(20+5*i,50,3,20);
@@ -308,19 +324,19 @@ window.addEventListener('load', function(){
                 let message1;
                 let message2;
                 if(this.game.score > this.game.winningScore){
-                    message1 = 'You Win';
-                    message2 = 'Well done';
-                }
+                    message1 = 'You Win :)';
+                    message2 = 'Well done...';
+                } 
                 else{
-                    message1 = 'You lose';
+                    message1 = 'You lose Xp';
                     message2 = 'Try Again!!';
                 }
                 context.font = '50px ' + this.fontFamily;
+              
                 context.fillText(message1,
                                 this.game.width*0.5,
-                                this.game.height*0.5-20);
-
-                context.font = '25px ' + this.fontFamily;
+                                this.game.height*0.5-20);   
+                context.font = '25px ' + this.fontFamily; 
                 context.fillText(message2,
                                 this.game.width*0.5,
                                 this.game.height*0.5+20);
@@ -347,16 +363,17 @@ window.addEventListener('load', function(){
             this.ammo = 20;
             this.ammoTimer = 0;
             this.ammoInterval = 500;
-            this.maxAmmo = 50;
+            this.maxAmmo = 60;
             this.enemies= [];
             this.enemyTimer = 0;
-            this.enmyInterval = 1000;
+            //Modificación
+            this.enmyInterval = 500;
             this.gameOver = false
             this.score = 0;
             //Puntaje para ganar
-            this.winningScore = 10;
+            this.winningScore = 20;
             this.gameTime = 0;
-            this.timeLimit = 7000;
+            this.timeLimit = 10000;
             this.speed =  1;
             this.debug = false;
         }
