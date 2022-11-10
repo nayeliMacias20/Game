@@ -233,6 +233,7 @@ window.addEventListener('load', function(){
             //this.width = 228*0.2;
             this.width = 228;
             this.height = 169;
+            this.lives = 3;
             this.y = Math.random()*(this.game.height*0.9-this.height)
             //Imagen del enemigo
             this.image = document.getElementById('angler1');
